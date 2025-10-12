@@ -1,8 +1,8 @@
 CREATE TYPE "public"."role" AS ENUM('admin', 'worker');--> statement-breakpoint
 CREATE TABLE "tokens" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"value" text NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" uuid NOT NULL,
 	"expired_at" timestamp NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
