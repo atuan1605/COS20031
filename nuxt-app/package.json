@@ -9,8 +9,9 @@
     "postinstall": "nuxt prepare",
     "lint": "echo 'Lint disabled'",
     "typecheck": "nuxt typecheck",
-    "db:generate": "drizzle-kit generate:pg",
-    "db:migrate": "tsx server/db/migrate.ts"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx server/db/migrate.ts",
+    "db:clean": "tsx server/db/clean.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.68",

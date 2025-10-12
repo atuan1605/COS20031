@@ -1,11 +1,11 @@
-import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { relations } from "drizzle-orm";
 
 export const tokens = pgTable("tokens", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey(),
   value: text("value").notNull().unique(),
-  user_id: integer("user_id")
+  user_id: uuid("user_id")
     .notNull()
     .references(() => users.id),
   expired_at: timestamp("expired_at").notNull(),
