@@ -11,4 +11,5 @@ export const users = pgTable("users", {
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   deleted_at: timestamp("deleted_at"),
   role: roleEnum("role").default("worker").notNull(),
+  verified_at: timestamp("verified_at")
 });

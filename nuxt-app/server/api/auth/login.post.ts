@@ -62,12 +62,7 @@ export default defineEventHandler(async (event) => {
     });
 
     return {
-      token: jwtToken,
-      user: {
-        id: user[0].id,
-        username: user[0].username,
-        role: user[0].role,
-      },
+      token: jwtToken
     };
   } catch (error: any) {
     console.error("Login error:", error);
