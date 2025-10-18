@@ -17,8 +17,7 @@
           v-model="form.username"
           placeholder="Username"
           size="lg"
-          class="w-full rounded-md border border-[#d3c7b9] dark:border-gray-600
-                 focus:ring-[#a4978e] focus:border-[#a4978e] dark:bg-gray-700 dark:text-white"
+          class="w-full rounded-full"
           :disabled="loading"
         />
 
@@ -28,21 +27,20 @@
           type="password"
           placeholder="Password"
           size="lg"
-          class="w-full rounded-md border border-[#d3c7b9] dark:border-gray-600
-                 focus:ring-[#a4978e] focus:border-[#a4978e] dark:bg-gray-700 dark:text-white"
+          class="w-full"
           :disabled="loading"
+          :ui="ui.input.slots"
         />
 
         <!-- Sign in button -->
         <UButton
+        @click="goToSignIn"
           type="submit"
           :loading="loading"
           :disabled="loading"
           label="Sign in"
           size="lg"
-          class="w-full mt-2 bg-[#a4978e] hover:bg-[#8d7f76] text-white font-medium rounded-md
-                 cursor-pointer transition-colors duration-200 disabled:opacity-70
-                 dark:bg-gray-600 dark:hover:bg-gray-500"
+          class="w-full justify-center cursor-pointer"
         />
       </form>
 
@@ -122,7 +120,17 @@ async function handleSignIn() {
     loading.value = false
   }
 }
+<<<<<<< Updated upstream
 
 
 
+=======
+const goToSignIn = () => {
+  navigateTo('/signIn')
+}
+
+const ui = {
+  input: { slots: { base: 'rounded-full text-xs h-12' } },
+}
+>>>>>>> Stashed changes
 </script>
