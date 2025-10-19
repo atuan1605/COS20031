@@ -120,11 +120,7 @@ async function handleSignIn() {
     loading.value = false
   }
 }
-<<<<<<< Updated upstream
 
-
-
-=======
 const goToSignIn = () => {
   navigateTo('/signIn')
 }
@@ -132,5 +128,4 @@ const goToSignIn = () => {
 const ui = {
   input: { slots: { base: 'rounded-full text-xs h-12' } },
 }
->>>>>>> Stashed changes
 </script>
