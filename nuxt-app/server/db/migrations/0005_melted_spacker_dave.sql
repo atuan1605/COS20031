@@ -1,4 +1,4 @@
-CREATE TYPE "public"."returned_items_status_enum" AS ENUM('none', 'returnedAtWarehouse', 'customerReturn', 'continue');--> statement-breakpoint
+-- CREATE TYPE "public"."returned_items_status_enum" AS ENUM('none', 'returnedAtWarehouse', 'customerReturn', 'continue');--> statement-breakpoint
 
 CREATE TABLE tracking_items (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
