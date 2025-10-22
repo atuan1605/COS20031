@@ -29,10 +29,12 @@
           size="lg"
           class="w-full"
           :disabled="loading"
+          :ui="ui.input.slots"
         />
 
         <!-- Sign in button -->
         <UButton
+        @click="goToSignIn"
           type="submit"
           :loading="loading"
           :disabled="loading"
@@ -71,5 +73,13 @@ definePageMeta({
 import { useSignIn } from '~/components/useSignIn'
 
 const { form, loading, handleSignIn } = useSignIn()
+
+const goToSignIn = () => {
+  navigateTo('/signIn')
+}
+
+const ui = {
+  input: { slots: { base: 'rounded-full text-xs h-12' } },
+}
 </script>
 
