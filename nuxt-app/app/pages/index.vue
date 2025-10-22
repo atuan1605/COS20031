@@ -76,6 +76,6 @@
 </template>
 <script setup lang="ts">
 definePageMeta({
-  middleware: ['auth']
+  middleware: 'auth' // only accessible when user is not logged in
 })
 </script>
