@@ -70,12 +70,12 @@ definePageMeta({
   middleware: 'guest' // only accessible when user is not logged in
 })
 
-import { useSignIn } from '~/components/useSignIn'
+import { useSignIn } from '~/composables/useSignIn'
 
 const { form, loading, handleSignIn } = useSignIn()
 
 const goToSignIn = () => {
-  navigateTo('/signIn')
+  navigateTo('/sign-in')
 }
 
 const ui = {
