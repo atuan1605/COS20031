@@ -67,65 +67,19 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'guest'
-})
-// Reactive form data
-const form = reactive({
-  username: '',
-  password: ''
+  middleware: 'guest' // only accessible when user is not logged in
 })
 
-const loading = ref(false)
+import { useSignIn } from '~/composables/useSignIn'
 
-// Hàm đăng nhập chính
-async function login(username: string, password: string) {
-  try {
-    const res: any = await $fetch('/api/auth/login', {
-      method: 'POST',
-      body: { username, password }
-    })
-
-    // Nếu server trả về token
-    if (res?.token) {
-      const token = useCookie<string | null>('token', {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 ngày
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production'
-      })
-      token.value = res.token
-
-      // Điều hướng về trang chính
-      await navigateTo('/')
-    } else {
-      alert('Đăng nhập thất bại: Không có token từ server')
-    }
-  } catch (err) {
-    console.error('Lỗi đăng nhập:', err)
-    alert('Sai tài khoản hoặc mật khẩu!')
-  }
-}
-
-//Xử lý khi người dùng nhấn nút “Sign in”
-async function handleSignIn() {
-  if (!form.username || !form.password) {
-    alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.')
-    return
-  }
-
-  loading.value = true
-  try {
-    await login(form.username, form.password)
-  } finally {
-    loading.value = false
-  }
-}
+const { form, loading, handleSignIn } = useSignIn()
 
 const goToSignIn = () => {
-  navigateTo('/signIn')
+  navigateTo('/sign-in')
 }
 
 const ui = {
   input: { slots: { base: 'rounded-full text-xs h-12' } },
 }
 </script>
+
