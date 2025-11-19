@@ -7,6 +7,7 @@ import {
   decimal,
   boolean,
 } from "drizzle-orm/pg-core";
+import { warehouses } from "./warehouses";
 
 // Create returned_items_status enum
 export const returnedItemsStatusEnum = pgEnum("returned_items_status_enum", [
@@ -23,6 +24,7 @@ export const trackingItems = pgTable("tracking_items", {
   tracking_number: text("tracking_number").unique().notNull(),
   file: text("file"),
   weight: decimal("weight", { precision: 6, scale: 2 }).notNull(),
+  warehouse_id: text("warehouse_id").references(() => warehouses.id),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   received_at_warehouse_at: timestamp("received_at_warehouse_at", {
