@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Check if box exists
+    // Check if box exists and has valid status
     const box = await db.query.boxes.findFirst({
       where: eq(boxes.id, id),
     });
@@ -32,6 +32,14 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 404,
         statusMessage: "Box not found",
+      });
+    }
+
+    // Check if box status is 'none' or 'changedWarehouse'
+    if (box.status !== 'none' && box.status !== 'changedWarehouse') {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Cannot add tracking items to box with status '${box.status}'. Box must have status 'none' or 'changedWarehouse'`,
       });
     }
 
@@ -50,6 +58,14 @@ export default defineEventHandler(async (event) => {
     }
 
     const trackingItem = trackingItemResult[0];
+
+    // Check if tracking item warehouse matches box warehouse
+    if (trackingItem.warehouse_id !== box.warehouse_id) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Cannot add tracking item. Tracking item is in warehouse '${trackingItem.warehouse_id}' but box is in warehouse '${box.warehouse_id}'`,
+      });
+    }
 
     // Check status - must be packing or receivedAtWarehouse
     const status = getTrackingItemStatus(trackingItem);

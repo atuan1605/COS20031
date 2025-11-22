@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { boxes, trackingItems } from "../db/schema";
-import { desc, eq, isNull, sql, like } from "drizzle-orm";
+import { desc, eq, isNull, sql, like, or, inArray } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -10,8 +10,14 @@ export default defineEventHandler(async (event) => {
     const search = (query.search as string) || "";
     const offset = (page - 1) * limit;
 
-    // Build where conditions
-    const whereConditions = [isNull(boxes.deleted_at)];
+    // Build where conditions - only show boxes with status 'none' or 'changedWarehouse'
+    const whereConditions = [
+      isNull(boxes.deleted_at),
+      or(
+        eq(boxes.status, 'none'),
+        eq(boxes.status, 'changedWarehouse')
+      )
+    ];
 
     if (search) {
       whereConditions.push(like(boxes.code, `%${search}%`));
@@ -22,7 +28,9 @@ export default defineEventHandler(async (event) => {
       .select({
         id: boxes.id,
         code: boxes.code,
+        warehouse_id: boxes.warehouse_id,
         created_at: boxes.created_at,
+        committed_at: boxes.committed_at,
         tracking_count: sql<number>`count(${trackingItems.id})::int`,
         total_weight: sql<string>`coalesce(sum(${trackingItems.weight}), 0)::numeric(10,2)`,
       })

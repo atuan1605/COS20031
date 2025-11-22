@@ -71,10 +71,16 @@
                   Box Name
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Warehouse
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tracking Count
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total Weight
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -94,10 +100,36 @@
                   <span class="text-sm font-medium">{{ box.code }}</span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm">
+                  {{ box.warehouse_id || 'N/A' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">
                   {{ box.tracking_count || 0 }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                   {{ box.total_weight ? `${box.total_weight} kg` : 'N/A' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                  <UBadge
+                    v-if="getBoxStatus(box) === 'empty'"
+                    color="neutral"
+                    variant="subtle"
+                  >
+                    Empty
+                  </UBadge>
+                  <UBadge
+                    v-else-if="getBoxStatus(box) === 'ready'"
+                    color="primary"
+                    variant="subtle"
+                  >
+                    Ready to Delivery
+                  </UBadge>
+                  <UBadge
+                    v-else-if="getBoxStatus(box) === 'delivery'"
+                    color="success"
+                    variant="subtle"
+                  >
+                    Delivery
+                  </UBadge>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                   <div class="flex gap-2">
@@ -189,6 +221,27 @@ const deleting = ref(false)
 
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value))
 
+function getBoxStatus(box: any): 'empty' | 'ready' | 'delivery' | null {
+  const trackingCount = box.tracking_count || 0
+
+  // Case 1: No tracking items
+  if (trackingCount === 0) {
+    return 'empty'
+  }
+
+  // Case 2: Has tracking items but not committed
+  if (trackingCount > 0 && !box.committed_at) {
+    return 'ready'
+  }
+
+  // Case 3: Has tracking items and committed
+  if (trackingCount > 0 && box.committed_at) {
+    return 'delivery'
+  }
+
+  return null
+}
+
 // Watch currentPage changes to fetch data
 watch(currentPage, (newPage, oldPage) => {
   if (newPage !== oldPage) {
@@ -247,13 +300,13 @@ function applyFilters() {
   fetchBoxes()
 }
 
-async function handleCreateBox(code: string) {
+async function handleCreateBox(data: { code: string; warehouseId: string }) {
   saving.value = true
 
   try {
     await apiFetch('/api/boxes', {
       method: 'POST',
-      body: { code }
+      body: data
     })
     showSuccess('Box created successfully')
     fetchBoxes()

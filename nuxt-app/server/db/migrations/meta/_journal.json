@@ -71,6 +71,48 @@
       "when": 1763793144716,
       "tag": "0010_narrow_shinobi_shaw",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1763796777374,
+      "tag": "0011_wakeful_moonstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1763797568833,
+      "tag": "0012_curious_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1763798240335,
+      "tag": "0013_illegal_sunset_bain",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1763799277991,
+      "tag": "0014_long_lorna_dane",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1763803357291,
+      "tag": "0015_gray_nightshade",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1763805721488,
+      "tag": "0016_yellow_bloodstorm",
+      "breakpoints": true
     }
   ]
 }

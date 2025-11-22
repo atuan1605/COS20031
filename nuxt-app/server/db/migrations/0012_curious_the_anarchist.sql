@@ -1,0 +1,1 @@
+ALTER TABLE "boxes" ADD COLUMN "committed_at" timestamp with time zone;

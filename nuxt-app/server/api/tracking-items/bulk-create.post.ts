@@ -24,7 +24,7 @@ function getRandomStatus() {
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log("🚀 Starting bulk creation of 10,000 tracking items...");
+    console.log(" Starting bulk creation of 10,000 tracking items...");
 
     const batchSize = 500; // Insert in batches to avoid memory issues
     const totalItems = 10000;

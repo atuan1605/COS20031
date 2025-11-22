@@ -248,6 +248,28 @@ const timelineItems = computed(() => {
       }
     },
     {
+      label: 'Changing Warehouse',
+      date: formatDateTime(item.changing_warehouse_at) || 'N/A',
+      completed: !!item.changing_warehouse_at,
+      colorClasses: {
+        bg: 'bg-orange-500',
+        border: 'border-orange-500',
+        line: 'bg-orange-400',
+        text: 'text-orange-700 dark:text-orange-400'
+      }
+    },
+    {
+      label: 'Changed Warehouse',
+      date: formatDateTime(item.changed_warehouse_at) || 'N/A',
+      completed: !!item.changed_warehouse_at,
+      colorClasses: {
+        bg: 'bg-cyan-500',
+        border: 'border-cyan-500',
+        line: 'bg-cyan-400',
+        text: 'text-cyan-700 dark:text-cyan-400'
+      }
+    },
+    {
       label: 'Delivering',
       date: formatDateTime(item.delivering_at) || 'N/A',
       completed: !!item.delivering_at,
@@ -299,7 +321,8 @@ const actionHistory = computed(() => {
   return Array.from(groupedLogs.values()).map((log: any) => {
     const type = log.type
     const username = log.username || 'Unknown'
-    const time = formatTime(log.created_at)
+    const time = formatDateTime(log.created_at)
+    const createdAt = log.created_at
 
     let title = ''
     let description = ''
@@ -345,6 +368,16 @@ const actionHistory = computed(() => {
         description = `Box ${type.boxCode || type.boxId} by ${username}`
         break
 
+      case 'changingWarehouse':
+        title = 'Changing warehouse'
+        description = `From ${type.oldWarehouseId || 'N/A'} to ${type.newWarehouseId || 'N/A'} by ${username}`
+        break
+
+      case 'changedWarehouse':
+        title = 'Changed warehouse'
+        description = `By ${username}`
+        break
+
       default:
         title = type.action
         description = `By ${username}`
@@ -354,11 +387,12 @@ const actionHistory = computed(() => {
       title,
       description,
       time,
+      createdAt,
       isError: false
     }
   }).sort((a, b) => {
-    // Sort by time descending (most recent first)
-    return b.time.localeCompare(a.time)
+    // Sort by createdAt descending (most recent first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
 })
 

@@ -3,6 +3,8 @@ export type TrackingItemStatus =
   | 'receivedAtWarehouse'
   | 'packing'
   | 'boxed'
+  | 'changingWarehouse'
+  | 'changedWarehouse'
   | 'delivering'
   | 'delivered'
 
@@ -12,6 +14,8 @@ export function getStatusLabel(status: TrackingItemStatus | string): string {
     receivedAtWarehouse: 'Received at Warehouse',
     packing: 'Packing',
     boxed: 'Boxed',
+    changingWarehouse: 'Changing Warehouse',
+    changedWarehouse: 'Changed Warehouse',
     delivering: 'Delivering',
     delivered: 'Delivered'
   }
@@ -24,6 +28,8 @@ export function getStatusColor(status: TrackingItemStatus | string): string {
     receivedAtWarehouse: 'info',
     packing: 'warning',
     boxed: 'primary',
+    changingWarehouse: 'warning',
+    changedWarehouse: 'primary',
     delivering: 'secondary',
     delivered: 'success'
   }
@@ -38,6 +44,8 @@ export function getCurrentStatus(item: any): TrackingItemStatus {
   if (!item) return 'new'
   if (item.delivered_at) return 'delivered'
   if (item.delivering_at) return 'delivering'
+  if (item.changed_warehouse_at) return 'changedWarehouse'
+  if (item.changing_warehouse_at) return 'changingWarehouse'
   if (item.boxed_at) return 'boxed'
   if (item.packing_at) return 'packing'
   if (item.received_at_warehouse_at) return 'receivedAtWarehouse'
@@ -52,6 +60,10 @@ export function getStatusUpdatedAt(item: any, status: TrackingItemStatus): strin
       return item.delivered_at
     case 'delivering':
       return item.delivering_at
+    case 'changedWarehouse':
+      return item.changed_warehouse_at
+    case 'changingWarehouse':
+      return item.changing_warehouse_at
     case 'boxed':
       return item.boxed_at
     case 'packing':

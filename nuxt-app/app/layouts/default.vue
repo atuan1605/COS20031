@@ -30,7 +30,6 @@
 
     <AppSidebar
       :is-open="sidebarOpen"
-      :username="username"
       @close="sidebarOpen = false"
     />
 
@@ -63,9 +62,4 @@
 
 <script setup lang="ts">
 const sidebarOpen = ref(true)
-const username = ref('Admin User')
-
-onMounted(() => {
-  // TODO: Fetch username from API
-})
 </script>

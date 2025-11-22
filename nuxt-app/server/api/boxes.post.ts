@@ -5,12 +5,19 @@ import { eq } from "drizzle-orm";
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    const { code } = body;
+    const { code, warehouseId } = body;
 
     if (!code || !code.trim()) {
       throw createError({
         statusCode: 400,
         statusMessage: "Box code is required",
+      });
+    }
+
+    if (!warehouseId || !warehouseId.trim()) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Warehouse ID is required",
       });
     }
 
@@ -31,6 +38,7 @@ export default defineEventHandler(async (event) => {
       .insert(boxes)
       .values({
         code: code.trim(),
+        warehouse_id: warehouseId.trim(),
       })
       .returning();
 
