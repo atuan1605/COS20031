@@ -1,6 +1,7 @@
 import { trackingItems } from "../../db/schema";
 import { db } from "../../db";
 import { eq } from "drizzle-orm";
+import { getTrackingItemStatus, getStatusUpdatedAt } from "../../utils/trackingItemStatus";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -14,10 +15,10 @@ export default defineEventHandler(async (event) => {
     }
 
     // Validate tracking number format
-    if (trackingNumber.length !== 12 || !/^\d{12}$/.test(trackingNumber)) {
+    if (trackingNumber.length > 12 || !/^\d+$/.test(trackingNumber)) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Invalid tracking number format. Must be 12 digits.",
+        statusMessage: "Invalid tracking number format. Must be digits only and max 12 characters.",
       });
     }
 
@@ -34,9 +35,17 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    const trackingItem = item[0];
+    const status = getTrackingItemStatus(trackingItem);
+    const statusUpdatedAt = getStatusUpdatedAt(trackingItem);
+
     return {
       success: true,
-      data: item[0],
+      data: {
+        id: trackingItem.id,
+        status,
+        statusUpdatedAt,
+      },
     };
   } catch (error: any) {
     console.error("Error fetching tracking item:", error);

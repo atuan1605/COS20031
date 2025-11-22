@@ -1,0 +1,1 @@
+ALTER TABLE "tracking_items" ADD COLUMN "chain" text;

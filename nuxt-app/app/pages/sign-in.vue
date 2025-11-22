@@ -1,15 +1,16 @@
 <template>
-  <div
-    class="min-h-screen flex items-center justify-center transition-colors duration-300
-           bg-[#f4f0eb] dark:bg-[#0f172a]"
-  >
+  <UApp>
     <div
-      class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-xl shadow-md px-8 py-10
-             border border-[#e5ded6] dark:border-gray-700 transition-colors duration-300"
+      class="min-h-screen flex items-center justify-center transition-colors duration-300
+             bg-[#f4f0eb] dark:bg-[#0f172a]"
     >
-      <h1 class="text-lg font-semibold mb-6 text-center text-[#3b2f2f] dark:text-white">
-        Join or log in
-      </h1>
+      <div
+        class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-xl shadow-md px-8 py-10
+               border border-[#e5ded6] dark:border-gray-700 transition-colors duration-300"
+      >
+        <h1 class="text-lg font-semibold mb-6 text-center text-[#3b2f2f] dark:text-white">
+          Cos20031 Sign In
+        </h1>
 
       <form @submit.prevent="handleSignIn" class="w-full space-y-4">
         <!-- Username -->
@@ -17,7 +18,7 @@
           v-model="form.username"
           placeholder="Username"
           size="lg"
-          class="w-full rounded-full"
+          class="w-full "
           :disabled="loading"
         />
 
@@ -29,7 +30,6 @@
           size="lg"
           class="w-full"
           :disabled="loading"
-          :ui="ui.input.slots"
         />
 
         <!-- Sign in button -->
@@ -63,11 +63,13 @@
       </p>
     </div>
   </div>
+  </UApp>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'guest'
+  middleware: 'guest',
+  layout: false
 })
 // Reactive form data
 const form = reactive({
@@ -77,7 +79,6 @@ const form = reactive({
 
 const loading = ref(false)
 
-// Hàm đăng nhập chính
 async function login(username: string, password: string) {
   try {
     const res: any = await $fetch('/api/auth/login', {
@@ -85,7 +86,6 @@ async function login(username: string, password: string) {
       body: { username, password }
     })
 
-    // Nếu server trả về token
     if (res?.token) {
       const token = useCookie<string | null>('token', {
         path: '/',
@@ -95,7 +95,6 @@ async function login(username: string, password: string) {
       })
       token.value = res.token
 
-      // Điều hướng về trang chính
       await navigateTo('/')
     } else {
       alert('Đăng nhập thất bại: Không có token từ server')
@@ -106,7 +105,6 @@ async function login(username: string, password: string) {
   }
 }
 
-//Xử lý khi người dùng nhấn nút “Sign in”
 async function handleSignIn() {
   if (!form.username || !form.password) {
     alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.')
@@ -122,10 +120,7 @@ async function handleSignIn() {
 }
 
 const goToSignIn = () => {
-  navigateTo('/signIn')
+  navigateTo('/')
 }
 
-const ui = {
-  input: { slots: { base: 'rounded-full text-xs h-12' } },
-}
 </script>
