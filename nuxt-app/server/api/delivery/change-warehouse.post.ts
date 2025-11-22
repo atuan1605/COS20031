@@ -149,6 +149,7 @@ export default defineEventHandler(async (event) => {
         // Log the action
         await tx.insert(trackingItemActionLoggers).values({
           carrier_id: payment.carrier_id,
+          user_id: event.context.user.id,
           type: {
             action: "changingWarehouse",
             trackingItemId: item.id,

@@ -90,84 +90,6 @@
           </UButton>
 
           <UButton
-            to="/warehouse"
-            :color="route.path.startsWith('/warehouse') ? 'primary' : 'neutral'"
-            :variant="route.path.startsWith('/warehouse') ? 'soft' : 'ghost'"
-            block
-            class="justify-start"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-warehouse" class="w-5 h-5" />
-            </template>
-            Warehouse
-          </UButton>
-
-          <UButton
-            to="/agents"
-            :color="route.path.startsWith('/agents') ? 'primary' : 'neutral'"
-            :variant="route.path.startsWith('/agents') ? 'soft' : 'ghost'"
-            block
-            class="justify-start"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-store" class="w-5 h-5" />
-            </template>
-            Agents
-          </UButton>
-
-          <UButton
-            to="/statistics"
-            :color="route.path.startsWith('/statistics') ? 'primary' : 'neutral'"
-            :variant="route.path.startsWith('/statistics') ? 'soft' : 'ghost'"
-            block
-            class="justify-start"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-bar-chart" class="w-5 h-5" />
-            </template>
-            Statistics
-          </UButton>
-
-          <UButton
-            to="/products"
-            :color="route.path.startsWith('/products') ? 'primary' : 'neutral'"
-            :variant="route.path.startsWith('/products') ? 'soft' : 'ghost'"
-            block
-            class="justify-start"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-package" class="w-5 h-5" />
-            </template>
-            Products
-          </UButton>
-
-          <UButton
-            to="/cameras"
-            :color="route.path.startsWith('/cameras') ? 'primary' : 'neutral'"
-            :variant="route.path.startsWith('/cameras') ? 'soft' : 'ghost'"
-            block
-            class="justify-start"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-camera" class="w-5 h-5" />
-            </template>
-            Cameras
-          </UButton>
-
-          <UButton
-            to="/search"
-            :color="route.path.startsWith('/search') ? 'primary' : 'neutral'"
-            :variant="route.path.startsWith('/search') ? 'soft' : 'ghost'"
-            block
-            class="justify-start"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-search" class="w-5 h-5" />
-            </template>
-            Search
-          </UButton>
-
-          <UButton
             to="/reports"
             :color="route.path.startsWith('/reports') ? 'primary' : 'neutral'"
             :variant="route.path.startsWith('/reports') ? 'soft' : 'ghost'"
@@ -194,18 +116,6 @@
             Carriers
           </UButton>
 
-          <UButton
-            to="/label"
-            :color="route.path.startsWith('/label') ? 'primary' : 'neutral'"
-            :variant="route.path.startsWith('/label') ? 'soft' : 'ghost'"
-            block
-            class="justify-start"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-tag" class="w-5 h-5" />
-            </template>
-            Label
-          </UButton>
         </div>
       </nav>
     </aside>

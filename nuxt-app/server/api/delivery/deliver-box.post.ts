@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       await tx.update(trackingItems).set({ delivering_at: now, updated_at: now }).where(eq(trackingItems.id, item.id));
       await tx.insert(trackingItemActionLoggers).values({
         carrier_id: payment.carrier_id,
+        user_id: event.context.user.id,
         type: { action: 'delivering', trackingItemId: item.id, boxId: box.id, boxCode: box.code },
       });
     }

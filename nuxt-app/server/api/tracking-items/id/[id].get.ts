@@ -27,15 +27,18 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch action logs with user information
+    const { carriers } = await import("../../../db/schema/carriers");
     const actionLogs = await db
       .select({
         id: trackingItemActionLoggers.id,
         type: trackingItemActionLoggers.type,
         created_at: trackingItemActionLoggers.created_at,
         username: users.username,
+        carrier_name: carriers.name,
       })
       .from(trackingItemActionLoggers)
       .leftJoin(users, eq(trackingItemActionLoggers.user_id, users.id))
+      .leftJoin(carriers, eq(trackingItemActionLoggers.carrier_id, carriers.id))
       .where(sql`${trackingItemActionLoggers.type}->>'trackingItemId' = ${id}`)
       .orderBy(desc(trackingItemActionLoggers.created_at));
 

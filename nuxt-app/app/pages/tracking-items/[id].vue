@@ -93,9 +93,27 @@
                 step="0.01"
                 placeholder="Enter weight"
                 size="lg"
+                :disabled="!canEditWeight"
                 @keyup.enter="handleWeightUpdate"
               />
-              <p class="text-xs text-gray-500 mt-1">Press Enter to save</p>
+              <p class="text-xs text-gray-500 mt-1" v-if="canEditWeight">Press Enter to save</p>
+              <p class="text-xs text-gray-400 mt-1" v-else>Can only edit weight when status is Packing or Received at Warehouse</p>
+            </div>
+
+            <!-- Amount -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Amount</label>
+              <UInput
+                v-model="editForm.amount"
+                type="number"
+                step="0.01"
+                placeholder="Enter amount"
+                size="lg"
+                :disabled="!canEditWeight"
+                @keyup.enter="handleAmountUpdate"
+              />
+              <p class="text-xs text-gray-500 mt-1" v-if="canEditWeight">Press Enter to save</p>
+              <p class="text-xs text-gray-400 mt-1" v-else>Can only edit amount when status is Packing or Received at Warehouse</p>
             </div>
 
             <!-- Chain Tracking Number -->
@@ -110,9 +128,11 @@
                 v-model="editForm.chainTrackingNumber"
                 placeholder="Enter tracking number"
                 size="lg"
+                :disabled="currentStatus !== 'receivedAtWarehouse'"
                 @keyup.enter="handleChainUpdate"
               />
-              <p class="text-xs text-gray-500 mt-1">Press Enter to add</p>
+              <p class="text-xs text-gray-500 mt-1" v-if="currentStatus === 'receivedAtWarehouse'">Press Enter to add</p>
+              <p class="text-xs text-gray-400 mt-1" v-else>Can only add to chain when status is Received at Warehouse</p>
             </div>
 
             <!-- Chain Items List -->
@@ -196,6 +216,7 @@ const itemToRemove = ref<any>(null)
 const removeLoading = ref(false)
 const editForm = reactive({
   weight: '',
+  amount: '',
   chainTrackingNumber: ''
 })
 
@@ -204,6 +225,10 @@ const { showSuccess, showError } = useNotification()
 const id = computed(() => route.params.id)
 
 const currentStatus = computed(() => getCurrentStatus(trackingItem.value))
+
+const canEditWeight = computed(() => {
+  return currentStatus.value === 'packing' || currentStatus.value === 'receivedAtWarehouse'
+})
 
 const statusUpdatedAt = computed(() =>
   getStatusUpdatedAt(trackingItem.value, currentStatus.value)
@@ -321,6 +346,7 @@ const actionHistory = computed(() => {
   return Array.from(groupedLogs.values()).map((log: any) => {
     const type = log.type
     const username = log.username || 'Unknown'
+    const carrierName = log.carrier_name || log.carrierName || ''
     const time = formatDateTime(log.created_at)
     const createdAt = log.created_at
 
@@ -370,17 +396,22 @@ const actionHistory = computed(() => {
 
       case 'changingWarehouse':
         title = 'Changing warehouse'
-        description = `From ${type.oldWarehouseId || 'N/A'} to ${type.newWarehouseId || 'N/A'} by ${username}`
+        description = `From ${type.oldWarehouseId || 'N/A'} to ${type.newWarehouseId || 'N/A'} by ${username}${carrierName ? `, Carrier: ${carrierName}` : ''}`
+        break
+
+      case 'delivering':
+        title = 'Delivering to customer'
+        description = `By ${username}${carrierName ? `, Carrier: ${carrierName}` : ''}`
         break
 
       case 'changedWarehouse':
         title = 'Changed warehouse'
-        description = `By ${username}`
+        description = `By ${username}${carrierName ? `, Carrier: ${carrierName}` : ''}`
         break
 
       default:
         title = type.action
-        description = `By ${username}`
+        description = `By ${username}${carrierName ? `, Carrier: ${carrierName}` : ''}`
     }
 
     return {
@@ -406,6 +437,7 @@ async function fetchTrackingItem() {
     if (result.success && result.data) {
       trackingItem.value = result.data
       editForm.weight = result.data.weight || ''
+      editForm.amount = result.data.amount || ''
       editForm.chainTrackingNumber = ''
 
       // Fetch chain items if this item has a chain
@@ -436,7 +468,7 @@ async function fetchChainItems(chainId: string) {
   }
 }
 
-async function saveChanges(updates: { weight?: number; chainTrackingNumber?: string }) {
+async function saveChanges(updates: { weight?: number; amount?: number }) {
   saveStatus.value = 'saving'
 
   try {
@@ -476,6 +508,7 @@ onMounted(async () => {
 
 async function handleWeightUpdate() {
   if (!trackingItem.value.id) return
+  if (!canEditWeight.value) return
 
   const numWeight = parseFloat(editForm.weight)
   if (isNaN(numWeight) || numWeight === trackingItem.value.weight) return
@@ -483,11 +516,49 @@ async function handleWeightUpdate() {
   await saveChanges({ weight: numWeight })
 }
 
+async function handleAmountUpdate() {
+  if (!trackingItem.value.id) return
+  if (!canEditWeight.value) return
+
+  const numAmount = parseFloat(editForm.amount)
+  if (isNaN(numAmount) || numAmount === trackingItem.value.amount) return
+
+  await saveChanges({ amount: numAmount })
+}
+
 async function handleChainUpdate() {
   if (!trackingItem.value.id || !editForm.chainTrackingNumber.trim()) return
+  if (currentStatus.value !== 'receivedAtWarehouse') return
 
-  await saveChanges({ chainTrackingNumber: editForm.chainTrackingNumber.trim() })
-  editForm.chainTrackingNumber = '' // Clear after save
+  saveStatus.value = 'saving'
+
+  try {
+    await apiFetch('/api/tracking-items/add-chain', {
+      method: 'POST',
+      body: {
+        trackingNumbers: [trackingItem.value.tracking_number, editForm.chainTrackingNumber.trim()],
+        chainId: trackingItem.value.chain || undefined
+      }
+    })
+
+    saveStatus.value = 'saved'
+    editForm.chainTrackingNumber = '' // Clear after save
+
+    // Reload tracking item data
+    await fetchTrackingItem()
+
+    setTimeout(() => {
+      saveStatus.value = null
+    }, 2000)
+  } catch (err: any) {
+    console.error('Error adding to chain:', err)
+    saveStatus.value = 'error'
+    showError(err, 'Add to Chain Failed')
+
+    setTimeout(() => {
+      saveStatus.value = null
+    }, 3000)
+  }
 }
 
 function confirmRemoveFromChain(item: any) {

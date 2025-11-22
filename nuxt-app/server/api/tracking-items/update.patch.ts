@@ -1,12 +1,12 @@
 import { trackingItems, trackingItemActionLoggers } from "../../db/schema";
 import { db } from "../../db";
-import { eq, and, isNull } from "drizzle-orm";
-import { getTrackingItemStatus, TrackingItemStatus, moveToStatus } from "../../utils/trackingItemStatus";
+import { eq } from "drizzle-orm";
+import { getTrackingItemStatus, TrackingItemStatus } from "../../utils/trackingItemStatus";
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    const { id, weight, chainTrackingNumber } = body;
+    const { id, weight, amount } = body;
 
     if (!id) {
       throw createError({
@@ -34,75 +34,31 @@ export default defineEventHandler(async (event) => {
       updated_at: new Date(),
     };
 
-    // Update weight if provided
+
+    // Only allow weight update if status is packing or receivedAtWarehouse
+    const currentStatus = getTrackingItemStatus(currentItem);
     if (weight !== undefined && weight !== null) {
-      updates.weight = weight.toString();
-    }
-
-    // Handle chain update
-    if (chainTrackingNumber) {
-      // Find the tracking item to add to chain
-      const chainItems = await db
-        .select()
-        .from(trackingItems)
-        .where(eq(trackingItems.tracking_number, chainTrackingNumber))
-        .limit(1);
-
-      if (chainItems.length === 0) {
-        throw createError({
-          statusCode: 404,
-          statusMessage: `Tracking number ${chainTrackingNumber} not found`,
-        });
-      }
-
-      const chainItem = chainItems[0];
-      const chainItemStatus = getTrackingItemStatus(chainItem);
-
-      // Check if chain item is at receivedAtWarehouse status ONLY
-      // Must have receivedAtWarehouseAt set and all other status timestamps null
-      if (
-        chainItemStatus !== TrackingItemStatus.RECEIVED_AT_WAREHOUSE ||
-        !chainItem.received_at_warehouse_at ||
-        chainItem.packing_at !== null ||
-        chainItem.boxed_at !== null ||
-        chainItem.delivering_at !== null ||
-        chainItem.delivered_at !== null
-      ) {
+      if (currentStatus === TrackingItemStatus.PACKING || currentStatus === TrackingItemStatus.RECEIVED_AT_WAREHOUSE) {
+        updates.weight = weight;
+      } else {
         throw createError({
           statusCode: 400,
-          statusMessage: `Tracking item ${chainTrackingNumber} must be at receivedAtWarehouse status only (no other status set). Current status: ${chainItemStatus}`,
+          statusMessage: "Weight can only be updated when status is Packing or Received at Warehouse",
+        });
+      }
+    }
+
+    // Update amount if provided
+    if (amount !== undefined && amount !== null) {
+      if (currentStatus === TrackingItemStatus.PACKING || currentStatus === TrackingItemStatus.RECEIVED_AT_WAREHOUSE) {
+        updates.amount = amount;
+      } else {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "Weight can only be updated when status is Packing or Received at Warehouse",
         });
       }
 
-      // Generate chain UUID if current item doesn't have one
-      if (!currentItem.chain) {
-        updates.chain = crypto.randomUUID();
-      }
-
-      // Update chain item: set chain and move to packing status
-      await db
-        .update(trackingItems)
-        .set({
-          chain: currentItem.chain || updates.chain,
-          packing_at: new Date(),
-          updated_at: new Date(),
-        })
-        .where(eq(trackingItems.id, chainItem.id));
-
-      // Log the chain action
-      if (event.context.user) {
-        await db.insert(trackingItemActionLoggers).values({
-          user_id: event.context.user.id,
-          type: {
-            action: 'addToChain',
-            trackingNumber: chainItem.tracking_number,
-            trackingItemId: chainItem.id,
-            chainId: currentItem.chain || updates.chain,
-            chainedTo: currentItem.tracking_number,
-            timestamp: new Date().toISOString()
-          }
-        });
-      }
     }
 
     // Apply updates to current item
@@ -122,7 +78,7 @@ export default defineEventHandler(async (event) => {
             trackingItemId: currentItem.id,
             updates: {
               weight: weight !== undefined ? weight : undefined,
-              chain: chainTrackingNumber ? (currentItem.chain || updates.chain) : undefined
+              amount: amount !== undefined ? amount : undefined
             },
             timestamp: new Date().toISOString()
           }
@@ -135,8 +91,8 @@ export default defineEventHandler(async (event) => {
       message: "Tracking item updated successfully",
       data: {
         id,
-        chain: currentItem.chain || updates.chain,
-        chainTrackingNumber
+        amount: updates.amount,
+        weight: updates.weight
       }
     };
   } catch (error: any) {

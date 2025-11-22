@@ -1,0 +1,3 @@
+ALTER TABLE "tracking_item_action_loggers" ALTER COLUMN "user_id" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "tracking_item_action_loggers" ADD COLUMN "carrier_id" uuid;--> statement-breakpoint
+ALTER TABLE "tracking_item_action_loggers" ADD CONSTRAINT "tracking_item_action_loggers_carrier_id_carriers_id_fk" FOREIGN KEY ("carrier_id") REFERENCES "public"."carriers"("id") ON DELETE no action ON UPDATE no action;
