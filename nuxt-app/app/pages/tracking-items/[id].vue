@@ -93,10 +93,10 @@
                 step="0.01"
                 placeholder="Enter weight"
                 size="lg"
-                :disabled="!canEditWeight"
+                :disabled="!canEdit"
                 @keyup.enter="handleWeightUpdate"
               />
-              <p class="text-xs text-gray-500 mt-1" v-if="canEditWeight">Press Enter to save</p>
+              <p class="text-xs text-gray-500 mt-1" v-if="canEdit">Press Enter to save</p>
               <p class="text-xs text-gray-400 mt-1" v-else>Can only edit weight when status is Packing or Received at Warehouse</p>
             </div>
 
@@ -109,10 +109,10 @@
                 step="0.01"
                 placeholder="Enter amount"
                 size="lg"
-                :disabled="!canEditWeight"
+                :disabled="!canEdit"
                 @keyup.enter="handleAmountUpdate"
               />
-              <p class="text-xs text-gray-500 mt-1" v-if="canEditWeight">Press Enter to save</p>
+              <p class="text-xs text-gray-500 mt-1" v-if="canEdit">Press Enter to save</p>
               <p class="text-xs text-gray-400 mt-1" v-else>Can only edit amount when status is Packing or Received at Warehouse</p>
             </div>
 
@@ -122,17 +122,17 @@
                 Add Tracking to Chain
               </label>
               <p class="text-xs text-gray-500 mb-2">
-                Enter tracking number to add to this chain. Item must be at "Received at Warehouse" status only.
+                Enter tracking number to add to this chain. Item must be at "Received at Warehouse" or "Packing" status.
               </p>
               <UInput
                 v-model="editForm.chainTrackingNumber"
                 placeholder="Enter tracking number"
                 size="lg"
-                :disabled="currentStatus !== 'receivedAtWarehouse'"
+                :disabled="!canEdit"
                 @keyup.enter="handleChainUpdate"
               />
-              <p class="text-xs text-gray-500 mt-1" v-if="currentStatus === 'receivedAtWarehouse'">Press Enter to add</p>
-              <p class="text-xs text-gray-400 mt-1" v-else>Can only add to chain when status is Received at Warehouse</p>
+              <p class="text-xs text-gray-500 mt-1" v-if="canEdit">Press Enter to add</p>
+              <p class="text-xs text-gray-400 mt-1" v-else>Can only add to chain when status is Received at Warehouse or Packing</p>
             </div>
 
             <!-- Chain Items List -->
@@ -164,7 +164,7 @@
 
             <!-- Save Status -->
             <div v-if="saveStatus" class="text-sm" :class="saveStatus === 'saving' ? 'text-gray-500' : saveStatus === 'saved' ? 'text-green-600' : 'text-red-600'">
-              {{ saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved successfully' : 'Tracking item not found' }}
+              {{ saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved successfully' : 'Failed to save' }}
             </div>
           </div>
         </UCard>
@@ -226,7 +226,7 @@ const id = computed(() => route.params.id)
 
 const currentStatus = computed(() => getCurrentStatus(trackingItem.value))
 
-const canEditWeight = computed(() => {
+const canEdit = computed(() => {
   return currentStatus.value === 'packing' || currentStatus.value === 'receivedAtWarehouse'
 })
 
@@ -508,7 +508,7 @@ onMounted(async () => {
 
 async function handleWeightUpdate() {
   if (!trackingItem.value.id) return
-  if (!canEditWeight.value) return
+  if (!canEdit.value) return
 
   const numWeight = parseFloat(editForm.weight)
   if (isNaN(numWeight) || numWeight === trackingItem.value.weight) return
@@ -518,7 +518,7 @@ async function handleWeightUpdate() {
 
 async function handleAmountUpdate() {
   if (!trackingItem.value.id) return
-  if (!canEditWeight.value) return
+  if (!canEdit.value) return
 
   const numAmount = parseFloat(editForm.amount)
   if (isNaN(numAmount) || numAmount === trackingItem.value.amount) return
@@ -528,7 +528,7 @@ async function handleAmountUpdate() {
 
 async function handleChainUpdate() {
   if (!trackingItem.value.id || !editForm.chainTrackingNumber.trim()) return
-  if (currentStatus.value !== 'receivedAtWarehouse') return
+  if (!canEdit.value) return
 
   saveStatus.value = 'saving'
 

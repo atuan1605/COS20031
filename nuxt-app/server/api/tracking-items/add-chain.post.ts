@@ -39,13 +39,28 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Check all items have valid status (packing or receivedAtWarehouse) first
+    // Check all items have valid status (packing or receivedAtWarehouse) and have weight/amount
     for (const item of items) {
       const status = getTrackingItemStatus(item);
       if (status !== TrackingItemStatus.PACKING && status !== TrackingItemStatus.RECEIVED_AT_WAREHOUSE) {
         throw createError({
           statusCode: 400,
           statusMessage: `Tracking item ${item.tracking_number} must be at Packing or Received at Warehouse status. Current status: ${status}`,
+        });
+      }
+
+      // Check if item has weight and amount
+      if (!item.weight || parseFloat(item.weight) <= 0) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: `Tracking item ${item.tracking_number} must have a valid weight before adding to chain`,
+        });
+      }
+
+      if (!item.amount || parseFloat(item.amount) <= 0) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: `Tracking item ${item.tracking_number} must have a valid amount before adding to chain`,
         });
       }
     }

@@ -29,6 +29,13 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    if (!body.amount) {
+      throw createError({
+        statusCode: 400,
+        message: "amount is required",
+      });
+    }
+
     if (!body.warehouseId) {
       throw createError({
         statusCode: 400,
@@ -67,6 +74,7 @@ export default defineEventHandler(async (event) => {
         tracking_number: trackingNumberStr,
         file: body.file || null,
         weight: body.weight.toString(),
+        amount: body.amount.toString(),
         warehouse_id: body.warehouseId,
         received_at_warehouse_at: now,
         returned_status: "none",

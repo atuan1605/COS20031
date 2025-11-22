@@ -11,6 +11,11 @@ function generateRandomWeight(): string {
   return (Math.random() * 49.9 + 0.1).toFixed(2);
 }
 
+// Function to generate random amount between 1000 and 100000
+function generateRandomAmount(): string {
+  return Math.floor(Math.random() * 99000 + 1000).toString();
+}
+
 // Function to get random status
 function getRandomStatus() {
   const statuses = [
@@ -51,7 +56,7 @@ export default defineEventHandler(async (event) => {
       const batchItems = [];
 
       console.log(
-        `📦 Processing batch ${
+        `Processing batch ${
           batch + 1
         }/${batches} (${itemsInThisBatch} items)`
       );
@@ -79,6 +84,7 @@ export default defineEventHandler(async (event) => {
         batchItems.push({
           tracking_number: trackingNumber,
           weight: generateRandomWeight(),
+          amount: generateRandomAmount(),
           is_fragile_item: Math.random() < 0.2, // 20% chance of being fragile
           returned_status: getRandomStatus() as any,
           file: Math.random() < 0.3 ? `file_${trackingNumber}.pdf` : null, // 30% chance of having a file
@@ -90,13 +96,13 @@ export default defineEventHandler(async (event) => {
       createdCount += itemsInThisBatch;
 
       console.log(
-        `✅ Batch ${
+        ` Batch ${
           batch + 1
         } completed. Total created: ${createdCount}/${totalItems}`
       );
     }
 
-    console.log("🎉 Bulk creation completed successfully!");
+    console.log(" Bulk creation completed successfully!");
 
     return {
       success: true,
@@ -110,7 +116,7 @@ export default defineEventHandler(async (event) => {
       },
     };
   } catch (error: any) {
-    console.error("❌ Error in bulk creation:", error);
+    console.error(" Error in bulk creation:", error);
     throw createError({
       statusCode: 500,
       statusMessage: `Bulk creation failed: ${error.message}`,

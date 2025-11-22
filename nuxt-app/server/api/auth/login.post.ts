@@ -42,6 +42,11 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Xóa tất cả token cũ của user
+    await db
+      .delete(tokens)
+      .where(eq(tokens.user_id, user[0].id));
+
     // Tạo JWT token
     const tokenPayload = {
       userId: user[0].id,
@@ -51,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
     const jwtToken = generateToken(tokenPayload);
 
-    // Tạo token trong database
+    // Tạo token mới trong database
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 1); // Token hết hạn sau 1 ngày
 

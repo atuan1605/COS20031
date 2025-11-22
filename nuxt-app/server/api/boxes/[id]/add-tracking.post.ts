@@ -67,6 +67,21 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Check if tracking item has weight and amount
+    if (!trackingItem.weight || parseFloat(trackingItem.weight) <= 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Tracking item must have a valid weight before adding to box",
+      });
+    }
+
+    if (!trackingItem.amount || parseFloat(trackingItem.amount) <= 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Tracking item must have a valid amount before adding to box",
+      });
+    }
+
     // Check status - must be packing or receivedAtWarehouse
     const status = getTrackingItemStatus(trackingItem);
     if (status !== TrackingItemStatus.PACKING && status !== TrackingItemStatus.RECEIVED_AT_WAREHOUSE) {

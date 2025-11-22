@@ -44,7 +44,7 @@
                   </td>
                 </tr>
                 <tr v-if="changedBoxes.length === 0">
-                  <td colspan="6" class="px-4 py-8 text-center text-gray-500">No boxes in changed warehouse status</td>
+                  <td colspan="6" class="px-4 py-8 text-center text-gray-500">Box not found</td>
                 </tr>
               </tbody>
             </table>
@@ -152,10 +152,10 @@ function formatDateTime(date: string) {
 async function fetchChangedBoxes() {
   loadingChanged.value = true
   try {
-    const response: any = await apiFetch('/api/delivery/changed-warehouse-boxes')
+    const response: any = await apiFetch('/api/delivery/delivering-boxes?tab=deliver')
     changedBoxes.value = response.data
   } catch (err: any) {
-    showError(err, 'Failed to load changed warehouse boxes')
+    showError(err, 'Failed to load boxes')
   } finally {
     loadingChanged.value = false
   }
@@ -164,7 +164,7 @@ async function fetchChangedBoxes() {
 async function fetchDeliveringBoxes() {
   loadingDelivering.value = true
   try {
-    const response: any = await apiFetch('/api/delivery/delivering-boxes')
+    const response: any = await apiFetch('/api/delivery/delivering-boxes?tab=complete')
     deliveringBoxes.value = response.data
   } catch (err: any) {
     showError(err, 'Failed to load delivering boxes')
